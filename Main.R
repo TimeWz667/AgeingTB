@@ -3,21 +3,30 @@ library(demography)
 library(StMoMo)
 library(ggplot2)
 
+source("Source/estimate.R")
+source("Source/simulate.R")
+source("Source/extract.R")
 
 load("E:/Source/AgeingTB/Input/Incidence.rdata")
 
 load("E:/Source/AgeingTB/Input/Population_1000.rdata")
 # load("E:/Source/AgeingTB/Input/Population_10000.rdata")
 
-ages <- 1:15
-years <- as.integer(rownames(inc.f))
+n.sim <- length(pop.f$Boot)
 
-x.f <- demogdata(t(inc.f/pop.f$Data), t(pop.f$Data), ages=ages, years=years, 
-                   type="mortality", label="Taiwan", name="Female")
-x.f <- StMoMoData(x.f)
+models <- estimate(inc.f, inc.m, pop.f, pop.m)
 
 
-x.m <- demogdata(t(inc.m/pop.m$Data), t(pop.m$Data), ages=ages, years=years, 
-                 type="mortality", label="Taiwan", name="Male")
-x.m <- StMoMoData(x.m)
+set.seed(1166)
+
+forecasts <- forecast_rates(models, 2050, n.sim)
+
+
+
+
+
+# This step is time-consuming
+n.sim=200
+parameters <- extract_parameters(models, n_boot=n.sim)
+kts <- extract_forecast_kt(forecasts)
 
