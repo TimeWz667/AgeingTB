@@ -18,7 +18,7 @@ forecast_rates <- function(models, until=2050, n_sim=1000,
   m <- models[["Female"]]
   
   dat <- t(m$data$Dxt/m$data$Ext)
-  est <- t(fitted(m))
+  est <- exp(t(fitted(m)))
   fore <- forecast(m, h=h, kt.method="iarima", kt.order=order_f)
   ktf <- c(fore$kt.f$mean)
   fore <- t(fore$rates)
@@ -35,7 +35,7 @@ forecast_rates <- function(models, until=2050, n_sim=1000,
   m <- models[["Male"]]
 
   dat <- t(m$data$Dxt/m$data$Ext)
-  est <- t(fitted(m))
+  est <- exp(t(fitted(m)))
   fore <- forecast(m, h=h, kt.method="iarima", kt.order=order_m)
   ktf <- c(fore$kt.f$mean)
   fore <- t(fore$rates)
@@ -54,6 +54,7 @@ forecast_rates <- function(models, until=2050, n_sim=1000,
 
 
 simulate_incidence <- function(fore, pop.f, pop.m) {
+  nms <- dimnames(pop.f$Forecast)
   
   mc <- list()
   
@@ -66,9 +67,9 @@ simulate_incidence <- function(fore, pop.f, pop.m) {
     n.f <- matrix(n.f, nrow(r.f), ncol(r.f))
     n.m <- rpois(nrow(r.m)*ncol(r.m), p.m*r.m)
     n.m <- matrix(n.m, nrow(r.m), ncol(r.m))
+    dimnames(p.f) <- dimnames(p.m) <- dimnames(n.f) <- dimnames(n.m) <- nms
     mc[[i]] <- list(p.f=p.f, p.m=p.m, n.f=n.f, n.m=n.m)
   }
-  
   
   
   list(
@@ -81,4 +82,38 @@ simulate_incidence <- function(fore, pop.f, pop.m) {
     Boot=mc
   )
 }
+
+
+
+simulate_incidence_fix_demo <- function(fore, pop.f, pop.m) {
+  nms <- dimnames(pop.f$Forecast)
+  
+  mc <- list()
+  p.f <- t(matrix(c(tail(pop.f$Data, 1)), ncol(pop.f$Data), nrow(pop.f$Forecast)))
+  p.m <- t(matrix(c(tail(pop.m$Data, 1)), ncol(pop.m$Data), nrow(pop.m$Forecast)))
+  dimnames(p.f) <- dimnames(p.m) <- nms
+  
+  for (i in 1:length(pop.f$Boot)) {
+    r.f <- fore$Female$Boot[[i]]
+    r.m <- fore$Male$Boot[[i]]
+    n.f <- rpois(nrow(r.f)*ncol(r.f), p.f*r.f)
+    n.f <- matrix(n.f, nrow(r.f), ncol(r.f))
+    n.m <- rpois(nrow(r.m)*ncol(r.m), p.m*r.m)
+    n.m <- matrix(n.m, nrow(r.m), ncol(r.m))
+    dimnames(p.f) <- dimnames(p.m) <- dimnames(n.f) <- dimnames(n.m) <- nms
+    mc[[i]] <- list(p.f=p.f, p.m=p.m, n.f=n.f, n.m=n.m)
+  }
+  
+  
+  list(
+    Data=list(p.f=pop.f$Data, p.m=pop.m$Data, 
+              n.f=fore$Female$Data*pop.f$Data, n.m=fore$Male$Data*pop.m$Data),
+    Fitted=list(p.f=pop.f$Data, p.m=pop.m$Data, 
+                n.f=fore$Female$Fitted*pop.f$Data, n.m=fore$Male$Fitted*pop.m$Data),
+    Forecast=list(p.f=p.f, p.m=p.m, 
+                  n.f=fore$Female$Forecast*p.f, n.m=fore$Male$Forecast*p.m),
+    Boot=mc
+  )
+}
+
 
