@@ -15,7 +15,7 @@ summary_with_age <- function(inc, agp) {
     pop <- rowSums(p.total[, ind])
     res[paste0(a, "N")] <- n
     res[paste0(a, "R")] <- n/pop * 1e5
-    res[paste0(a, "Pr")] <- n/n.sums * 100
+    res[paste0(a, "Pr")] <- n/n.sums
     res[paste0(a, "Fr")] <- n/p.sums * 1e5
   }
   
@@ -70,14 +70,14 @@ summary_with_sex <- function(inc) {
   pop <- rowSums(inc$p.f)
   res["FemaleN"] <- n
   res["FemaleR"] <- n/pop * 1e5
-  res["FemalePr"] <- n/n.sums * 100
+  res["FemalePr"] <- n/n.sums
   res["FemaleFr"] <- n/p.sums * 1e5
 
   n <- rowSums(inc$n.m)
   pop <- rowSums(inc$p.m)
   res["MaleN"] <- n
   res["MaleR"] <- n/pop * 1e5
-  res["MalePr"] <- n/n.sums * 100
+  res["MalePr"] <- n/n.sums
   res["MaleFr"] <- n/p.sums * 1e5
   
   rownames(res) <- NULL
@@ -88,7 +88,10 @@ summary_with_sex <- function(inc) {
 summarise_reduction_age <- function(sims, baseline=2015, q=0.95) {
   baseline <- as.character(baseline)
   r0s <- with(sims$Data, {(n.f[baseline,]+n.m[baseline,])/(p.f[baseline,]+p.m[baseline,])})
-
+  r0 <- with(sims$Data, {sum(n.f[baseline,]+n.m[baseline,])/sum(p.f[baseline,]+p.m[baseline,])})
+  red <- 1-with(sims$Forecast, {rowSums(n.f+n.m)/rowSums(p.f+p.m)})/r0
+  
+  
   fore <- -(t(with(sims$Forecast, {(n.f+n.m)/(p.f+p.m)})) - r0s)/r0s
   fore <- t(fore)
   
@@ -112,7 +115,7 @@ summarise_reduction_age <- function(sims, baseline=2015, q=0.95) {
   dimnames(mc.summary)[[2]] <- colnames(fore)
   dimnames(mc.summary)[[3]] <- c("Mean", "Lower", "Upper")
   
-  list(Base=r0s, Forecast=fore, Boot=mc.summary)
+  list(Base=r0s, All=red, Forecast=fore, Boot=mc.summary)
 }
 
 

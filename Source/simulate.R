@@ -28,8 +28,10 @@ forecast_rates <- function(models, until=2050, n_sim=1000,
   kts <- sim$kt.s$sim[1,,]
   sim <- lapply(1:n_sim, function(x) t(sim$rates[,,x]))
   
+  
   res[["Female"]] <- list(
-    Data=dat, Forecast=fore, Fitted=est, Boot=sim, kt.fore=ktf, kt.sim=kts
+    Data=dat, Forecast=fore, Fitted=est, 
+    Boot=sim, kt.fore=ktf, kt.sim=kts
   )
   
   m <- models[["Male"]]
@@ -46,7 +48,8 @@ forecast_rates <- function(models, until=2050, n_sim=1000,
   sim <- lapply(1:n_sim, function(x) t(sim$rates[,,x]))
   
   res[["Male"]] <- list(
-    Data=dat, Forecast=fore, Fitted=est, Boot=sim, kt.fore=ktf, kt.sim=kts
+    Data=dat, Forecast=fore, Fitted=est,  
+    Boot=sim, kt.fore=ktf, kt.sim=kts
   )
   
   res
