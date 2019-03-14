@@ -53,6 +53,32 @@ forecast_rates <- function(models, until=2050, n_sim=1000,
 }
 
 
-simulate_incidence <- function(fore, pop) {
+simulate_incidence <- function(fore, pop.f, pop.m) {
   
+  mc <- list()
+  
+  for (i in 1:length(pop.f$Boot)) {
+    p.f <- pop.f$Boot[[i]]
+    p.m <- pop.m$Boot[[i]]
+    r.f <- fore$Female$Boot[[i]]
+    r.m <- fore$Male$Boot[[i]]
+    n.f <- rpois(nrow(r.f)*ncol(r.f), p.f*r.f)
+    n.f <- matrix(n.f, nrow(r.f), ncol(r.f))
+    n.m <- rpois(nrow(r.m)*ncol(r.m), p.m*r.m)
+    n.m <- matrix(n.m, nrow(r.m), ncol(r.m))
+    mc[[i]] <- list(p.f=p.f, p.m=p.m, n.f=n.f, n.m=n.m)
+  }
+  
+  
+  
+  list(
+    Data=list(p.f=pop.f$Data, p.m=pop.m$Data, 
+              n.f=fore$Female$Data*pop.f$Data, n.m=fore$Male$Data*pop.m$Data),
+    Fitted=list(p.f=pop.f$Data, p.m=pop.m$Data, 
+                n.f=fore$Female$Fitted*pop.f$Data, n.m=fore$Male$Fitted*pop.m$Data),
+    Forecast=list(p.f=pop.f$Forecast, p.m=pop.m$Forecast, 
+                  n.f=fore$Female$Forecast*pop.f$Forecast, n.m=fore$Male$Forecast*pop.m$Forecast),
+    Boot=mc
+  )
 }
+
