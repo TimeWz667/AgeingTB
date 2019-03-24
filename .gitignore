@@ -25,6 +25,9 @@ rsconnect/
 .Rproj.user
 AgeingTB.Rproj
 README.html
+<<<<<<< HEAD
 
 Output/*.tiff
 Output/*.rdata
+=======
+>>>>>>> 7834aaab797de1952b19c60c4463e4e3804b60dd
