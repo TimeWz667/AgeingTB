@@ -1,3 +1,24 @@
+summary_pop_with_age <- function(p.f, p.m, agp) {
+  p.total <- p.f + p.m
+  p.rsum <- rowSums(p.total)
+  
+  chd <- 1:3; young <-4:7; mid <- 8:13; old <- 14:15 
+  
+  res <- data.frame(Year=as.numeric(rownames(p.total)), 
+                    TotalN=p.rsum)
+  
+  for (a in names(agp)) {
+    ind <- agp[[a]]
+    
+    n <- rowSums(p.total[, ind])
+    res[paste0(a, "N")] <- n
+  }
+  
+  rownames(res) <- NULL
+  res
+}
+
+
 summary_with_age <- function(inc, agp) {
   n.total <- inc$n.f + inc$n.m
   p.total <- inc$p.f + inc$p.m
@@ -140,3 +161,19 @@ summarise_reduction_all <- function(sims, baseline=2015, q=0.95) {
 
 }
 
+
+summarise_paf <- function(sims1, sims0, q=0.95) {
+  fore <- 1-with(sims0$Forecast, {rowSums(n.f+n.m)})/with(sims1$Forecast, {rowSums(n.f+n.m)})
+  
+  mc1 <- sapply(sims1$Boot, function(x) with(x, {rowSums(n.f+n.m)}))
+  mc0 <- sapply(sims0$Boot, function(x) with(x, {rowSums(n.f+n.m)}))
+  mc <- 1 - mc0/mc1
+  
+  data.frame(
+    Year=as.numeric(names(fore)),
+    Mean=fore,
+    Lower=apply(mc, 1, quantile, p=.5-q/2),
+    Upper=apply(mc, 1, quantile, p=.5+q/2)
+  )
+  
+}

@@ -3,9 +3,41 @@ library(reshape2)
 library(gridExtra)
 
 
-
-vis_population <- function() {
+vis_age_struture <- function(pop.f, pop.m, year.end, agp, agl) {
   
+  pop.data <- summary_pop_with_age(pop.f$Data, pop.m$Data, agp)
+  pop.fore <- summary_pop_with_age(pop.f$Forecast, pop.m$Forecast, agp)
+  pop.fore <- subset(pop.fore, Year <=year.end)
+  
+  dat <- data.frame(
+    Year = rep(pop.data$Year, 4),
+    Age = factor(rep(agl, each=nrow(pop.data)), 
+                 levels=agl),
+    N = unlist(c(pop.data[, paste0(names(agp), "N")]))*1e-6
+  )
+  
+  fore <- data.frame(
+    Year = rep(pop.fore$Year, 4),
+    Age = factor(rep(agl, each=nrow(pop.fore)), 
+                 levels=agl),
+    N = unlist(c(pop.fore[, paste0(names(agp), "N")]))*1e-6
+  )
+  
+  
+  g <- ggplot(data=dat, aes(x=Year, y=N)) +
+    geom_bar(aes(fill=Age), width=1, position=position_stack(reverse=TRUE), stat="identity") +
+    geom_bar(data=fore, stat="identity", width=1, position=position_stack(reverse=TRUE), 
+             aes(fill=Age, linetype="Forecast")) +
+    geom_vline(aes(xintercept=2018.4), linetype=2) + 
+    geom_text(aes(x=2019, y=25, label="Forecast"), hjust=0, vjust=0) +
+    geom_text(aes(x=2018, y=25, label="Data"), hjust=1, vjust=0) +
+    scale_y_continuous("Population (million)", breaks=seq(0, 25, by=5), limits=c(0, 26)) +
+    scale_x_continuous("Year", breaks=seq(2005, year.end, by=5)) +
+    # labs(tag="A", title="Population by age group") +
+    scale_fill_grey("Age", start=0.8, end=0.3) +
+    guides(fill=guide_legend(reverse=F), linetype="none") +
+    theme_minimal()
+  g
 }
 
 
