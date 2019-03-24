@@ -22,6 +22,13 @@ ggsave("Output/Fitted.jpg", width = 20, height = 12, units = "cm", plot=g.fit)
 g.resid <- vis_residuals(models, combine=T)
 ggsave("Output/Residuals.jpg", width = 15, height = 20, units="cm", plot=g.resid)
 
+g.resid <- vis_residuals(models, combine=F)
+g.resid.at <- grid.arrange(g.resid$Age, 
+                           g.resid$Year, 
+                      layout_matrix=matrix(c(1, 2), 2, 1, byrow = T))
+
+ggsave("Output/Residuals_xt.jpg", width = 15, height = 8, units="cm", plot=g.resid$AgeYear)
+ggsave("Output/Residuals_x_t.jpg", width = 15, height = 15, units="cm", plot=g.resid.at)
 
 # Forecasting
 g.trend <- vis_overall_trend(summary.age, 2035, 80)

@@ -24,3 +24,4 @@ vignettes/*.pdf
 rsconnect/
 .Rproj.user
 AgeingTB.Rproj
+README.html
