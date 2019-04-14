@@ -2,7 +2,7 @@ library(ggplot2)
 library(gridExtra)
 library(ggpubr)
 
-load("Output/results10000.rdata")
+load("Output/results1000.rdata")
 load("Input/Population_10000.rdata")
 
 
@@ -16,7 +16,7 @@ year.end <- 2035
 g.data <- vis_age_trends_data(forecasts, log_rate=T)
 ggsave("Output/DataTrend.jpg", width = 20, height = 12, units = "cm", plot=g.data)
 
-g.as <- vis_age_struture(pop.f, pop.m, year.end, agp)
+g.as <- vis_age_struture(pop.f, pop.m, year.end, agp, agl)
 
 
 # Modelling
